@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Transaction Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .receipt {
+            max-width: 700px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #004080;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .amount {
+            color: green;
+            font-weight: bold;
+        }
+        .debit {
+            color: red;
+            font-weight: bold;
+        }
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: #555;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <h1>Bank Transaction Receipt</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{ account.user.username }},</p>
+            <p>Here are the details of your recent transaction:</p>
+            <table>
+                <tr>
+                    <th>Account Number</th>
+                    <td>{{ account.account_number }}</td>
+                </tr>
+                <tr>
+                    <th>Account Type</th>
+                    <td>{{ account.account_type }}</td>
+                </tr>
+                <tr>
+                    <th>Transaction Type</th>
+                    <td>{{ transaction.transaction_type }}</td>
+                </tr>
+                <tr>
+                    <th>Description</th>
+                    <td>{{ transaction.description }}</td>
+                </tr>
+                <tr>
+                    <th>Amount</th>
+                    <td class="{% if transaction.amount < 0 %}debit{% else %}amount{% endif %}">${{ transaction.amount }}</td>
+                </tr>
+                <tr>
+                    <th>Date & Time</th>
+                    <td>{{ transaction.timestamp }}</td>
+                </tr>
+                <tr>
+                    <th>Remaining Balance</th>
+                    <td>${{ account.balance }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="footer">
+            Thank you for banking with us.<br>
+            &copy; {{ transaction.timestamp.year }} SA Bank
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank Statement - {{ account.account_number }}</title>
+    <style>
+        body { font-family: "Times New Roman", serif; color: #000; padding: 40px; }
+        .statement-header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; display: flex; justify-content: space-between; }
+        .bank-info h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+        .customer-info { margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { border-bottom: 1px solid #000; text-align: left; padding: 10px; }
+        td { border-bottom: 1px dashed #ccc; padding: 10px; }
+        .amount { text-align: right; }
+        .summary { margin-top: 40px; text-align: right; font-weight: bold; font-size: 1.2em; }
+        
+        /* Hide buttons when printing */
+        @media print {
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+
+<div class="no-print" style="background: #fff3cd; padding: 15px; margin-bottom: 20px; text-align: center;">
+    <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer;">Print Now</button>
+    <a href="{% url 'history' %}" style="margin-left: 20px;">Back to History</a>
+</div>
+
+<div class="statement-header">
+    <div class="bank-info">
+        <h1>SJ Bank</h1>
+        <p>123 Finance Way, Digital City<br>Statement Generated: {% now "jS F Y H:i" %}</p>
+    </div>
+    <div style="text-align: right;">
+        <p><strong>Account Number:</strong> {{ account.account_number }}</p>
+        <p><strong>Account Type:</strong> {{ account.account_type }}</p>
+    </div>
+</div>
+
+<div class="customer-info">
+    <p><strong>Account Holder:</strong> {{ account.user.username|upper }}</p>
+    <p><strong>Email:</strong> {{ account.user.email }}</p>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th class="amount">Amount ($)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t.timestamp|date:"Y-m-d" }}</td>
+            <td>{{ t.description }}</td>
+            <td class="amount">{% if t.amount < 0 %}-{% endif %}${{ t.amount|stringformat:".2f"|cut:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="summary">
+    Final Balance: ${{ account.balance }}
+</div>
+
+<div style="margin-top: 50px; font-size: 0.8em; text-align: center;">
+    <p>This is a computer-generated document. No signature is required.</p>
+</div>
+
+</body>
+</html>

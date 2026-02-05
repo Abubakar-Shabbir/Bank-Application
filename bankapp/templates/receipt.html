@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .receipt-box {
+            max-width: 400px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .text-center { text-align: center; }
+        .details { margin-top: 20px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        @media print { .no-print { display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="receipt-box">
+    <h2 class="text-center">BANK RECEIPT</h2>
+    <p class="text-center">Official Confirmation</p>
+    <hr>
+    
+    <div class="details">
+        <div class="row"><span>Reference ID:</span> <span>#{{ transaction.id }}</span></div>
+        <div class="row"><span>Date:</span> <span>{{ transaction.timestamp|date:"Y-m-d H:i" }}</span></div>
+        <div class="row"><span>Account:</span> <span>{{ transaction.account.account_number }}</span></div>
+        <div class="row"><span>Type:</span> <span>{{ transaction.transaction_type }}</span></div>
+        <hr>
+        <div class="row"><strong>Amount:</strong> <strong>${{ transaction.amount }}</strong></div>
+        <p><strong>Description:</strong><br>{{ transaction.description }}</p>
+    </div>
+
+    <hr>
+    <div class="text-center no-print">
+        <button onclick="window.print()">Print Receipt</button>
+        <br><br>
+        <a href="{% url 'dashboard' %}">Return to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

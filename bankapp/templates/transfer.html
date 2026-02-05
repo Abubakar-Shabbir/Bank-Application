@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Transfer Funds</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .action-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 420px; }
+        .action-card h2 { color: #17a2b8; margin-bottom: 10px; text-align: center; }
+        .balance-info { text-align: center; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e9ecef; }
+        .balance-info small { color: #666; display: block; }
+        .balance-info span { font-size: 1.4em; font-weight: bold; color: #333; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; font-size: 0.9em; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
+        .btn-submit { background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; padding: 14px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1em; }
+        .error-msg { color: #dc3545; background: #f8d7da; padding: 12px; border-radius: 6px; margin-bottom: 15px; text-align: center; font-size: 0.85em; border: 1px solid #f5c6cb; }
+        .footer-link { text-align: center; margin-top: 20px; }
+        .footer-link a { color: #007bff; text-decoration: none; font-size: 0.9em; }
+        .info-box { font-size: 0.8em; color: #666; background: #fff3cd; padding: 10px; border-radius: 6px; margin-top: 15px; border: 1px solid #ffeeba; }
+    </style>
+</head>
+<body>
+
+<div class="action-card">
+    <h2>Transfer Money</h2>
+    <div class="balance-info">
+        <small>Available Balance</small>
+        <span>${{ account.balance }}</span>
+    </div>
+
+    {% if message %}
+        <div class="error-msg">{{ message }}</div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Recipient's 8-Digit Account Number</label>
+            <input type="text" name="receiver_account" maxlength="8" pattern="\d{8}" required placeholder="e.g. 12345678">
+        </div>
+        <div class="form-group">
+            <label>Amount to Send ($)</label>
+            <input type="number" name="amount" step="0.01" min="0.01" required placeholder="0.00">
+        </div>
+        <button type="submit" class="btn-submit">Send Money Now</button>
+    </form>
+
+    <div class="info-box">
+        <strong>Security Tip:</strong> Always double-check the recipient's account number. Transfers are instant and cannot be undone.
+    </div>
+
+    <div class="footer-link">
+        <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

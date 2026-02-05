@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Account Statement</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f7f6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Filter Form Styling */
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 0.8em;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .filter-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn-filter {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-reset {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #dee2e6;
+            color: #495057;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .positive {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .receipt-btn {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #e7f1ff;
+            color: #007bff;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .footer-link {
+            margin-top: 30px;
+            display: block;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h2>Account Statement</h2>
+            <div style="text-align: right;">
+                <small>Account Number:</small><br>
+                <strong>{{ account.account_number }}</strong>
+            </div>
+        </div>
+
+        <div class="header">
+            <h2>Account Statement</h2>
+            <div>
+                <a href="{% url 'print_statement' %}?start_date={{ request.GET.start_date }}&end_date={{ request.GET.end_date }}"
+                    class="btn-filter" style="text-decoration: none; background-color: #007bff; margin-right: 10px;">
+                    Print PDF Statement
+                </a>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <form method="GET" class="filter-form">
+                <div class="filter-group">
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" value="{{ request.GET.start_date }}">
+                </div>
+                <div class="filter-group">
+                    <label>End Date</label>
+                    <input type="date" name="end_date" value="{{ request.GET.end_date }}">
+                </div>
+                <button type="submit" class="btn-filter">Filter History</button>
+                <a href="{% url 'history' %}" class="btn-reset">Clear All</a>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                    <td>{{ t.timestamp|date:"d M Y, H:i" }}</td>
+                    <td>{{ t.description }}</td>
+                    <td class="{% if t.amount < 0 %}negative{% else %}positive{% endif %}">
+                        {% if t.amount > 0 %}+{% endif %}${{ t.amount }}
+                    </td>
+                    <td>
+                        <a href="{% url 'receipt' t.id %}" class="receipt-btn">View Receipt</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 40px; color: #999;">
+                        No transactions found for the selected period.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{% url 'dashboard' %}" class="footer-link">← Back to Dashboard</a>
+    </div>
+
+</body>
+
+</html>

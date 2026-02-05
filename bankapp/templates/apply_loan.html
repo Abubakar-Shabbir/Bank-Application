@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apply Loan - Bank System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 550px;
+            margin: 60px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        form { margin-top: 20px; }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background: #0056b3; }
+
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+
+        .loan-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        .loan-details { margin-bottom: 12px; }
+        .loan-details strong { display: inline-block; width: 150px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Apply for a Loan</h2>
+
+    {% if message %}
+        {% if loan and loan.status|lower == "approved" %}
+            <div class="message success">
+        {% else %}
+            <div class="message error">
+        {% endif %}
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <label for="scheme">Select Loan Scheme</label>
+        <select id="scheme" name="scheme" required>
+            <option value="" disabled selected>-- Choose a Scheme --</option>
+            {% for s in loan_schemes %}
+                <option value="{{ s.name }}">{{ s.name }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Auto-filled fields -->
+        <label for="amount">Requested Amount</label>
+        <input type="text" id="amount" name="amount" readonly>
+
+        <label for="interest">Interest Rate (%)</label>
+        <input type="text" id="interest" readonly>
+
+        <label for="due_date">Return Period</label>
+        <input type="text" id="due_date" readonly>
+
+        <button type="submit">Submit Loan</button>
+    </form>
+
+    {% if loan and loan.status|lower == "approved" %}
+        <div class="loan-info">
+            <div class="loan-details"><strong>Scheme:</strong> {{ loan.scheme }}</div>
+            <div class="loan-details"><strong>Approved Amount:</strong> ${{ loan.approved_amount }}</div>
+            <div class="loan-details"><strong>Interest Rate:</strong> {{ loan.interest_rate|floatformat:2 }}%</div>
+            <div class="loan-details"><strong>Total Repayment:</strong> ${{ loan.balance_remaining|floatformat:2 }}</div>
+            <div class="loan-details"><strong>Due Date:</strong> {{ loan.due_date|date:"d M Y" }}</div>
+        </div>
+    {% endif %}
+</div>
+
+<script id="loan-schemes-json" type="application/json">
+    {{ loan_schemes_json }}
+</script>
+
+<script>
+    const schemes = JSON.parse(document.getElementById('loan-schemes-json').textContent);
+
+    const schemeSelect = document.getElementById('scheme');
+    const amountInput = document.getElementById('amount');
+    const interestInput = document.getElementById('interest');
+    const dueInput = document.getElementById('due_date');
+
+    schemeSelect.addEventListener('change', () => {
+        const selected = schemes.find(s => s.name === schemeSelect.value);
+        if(selected) {
+            amountInput.value = selected.max_amount;
+            interestInput.value = (selected.interest_rate * 100).toFixed(2);
+            dueInput.value = selected.return_days + " days";
+        } else {
+            amountInput.value = '';
+            interestInput.value = '';
+            dueInput.value = '';
+        }
+    });
+</script>
+
+</body>
+</html>

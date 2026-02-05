@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .profile-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
+        .avatar { width: 80px; height: 80px; background: #007bff; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; margin: 0 auto 20px; font-weight: bold; }
+        h2 { margin: 0; color: #333; }
+        .email { color: #666; margin-bottom: 30px; }
+        .info-grid { display: grid; grid-template-columns: 1fr; gap: 15px; text-align: left; }
+        .info-item { background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
+        .info-label { font-size: 0.8em; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .info-value { font-size: 1.1em; color: #222; font-weight: 600; display: block; margin-top: 5px; }
+        .acc-number { color: #007bff; font-family: 'Courier New', monospace; font-size: 1.3em; }
+        .footer-link { margin-top: 30px; }
+        .footer-link a { color: #007bff; text-decoration: none; font-weight: 600; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; margin-top: 5px; }
+        .badge-savings { background: #d4edda; color: #155724; }
+        .badge-current { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+
+<div class="profile-card">
+    <div class="avatar">{{ account.user.username|first|upper }}</div>
+    <h2>{{ account.user.username }}</h2>
+    <div class="email">{{ account.user.email }}</div>
+
+    <div class="info-grid">
+        <div class="info-item">
+            <span class="info-label">Account Number</span>
+            <span class="info-value acc-number">{{ account.account_number }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Account Type</span>
+            <span class="info-value">
+                <span class="badge {% if account.account_type == 'Savings' %}badge-savings{% else %}badge-current{% endif %}">
+                    {{ account.account_type }}
+                </span>
+            </span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Member Since</span>
+            <span class="info-value">{{ account.user.date_joined|date:"F Y" }}</span>
+        </div>
+    </div>
+
+    <div class="footer-link">
+        <a href="{% url 'dashboard' %}">← Return to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>

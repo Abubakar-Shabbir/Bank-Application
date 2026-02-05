@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mobile Recharge</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- intl-tel-input CSS -->
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.min.css"/>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+/* ===== Body & Card ===== */
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(18px);
+    border-radius: 25px;
+    padding: 40px 30px;
+    width: 100%;
+    max-width: 420px;
+    color: white;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    animation: fadeIn 0.7s ease;
+}
+
+/* ===== Animation ===== */
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(25px);}
+    to {opacity:1; transform: translateY(0);}
+}
+
+/* ===== Titles & Balance ===== */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+}
+
+.balance {
+    text-align: center;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    padding: 12px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+}
+
+/* ===== Labels & Inputs ===== */
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-top: 6px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    box-sizing: border-box;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    transition: 0.3s;
+}
+
+input:focus {
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 10px rgba(0, 198, 255, 0.6);
+}
+
+/* ===== Country display ===== */
+.country-display {
+    margin-top: 6px;
+    font-size: 14px;
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+/* ===== Button ===== */
+button {
+    margin-top: 30px;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(90deg,#00c6ff,#0072ff);
+    color: white;
+    font-weight: bold;
+    font-size: 17px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,198,255,0.5);
+}
+
+/* ===== Back link ===== */
+.back {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.back a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.back a:hover {
+    text-decoration: underline;
+}
+
+/* ===== intl-tel-input ===== */
+.iti {
+    width: 100%;
+}
+
+/* No flags, only code for auto country */
+.iti__flag-container { display: none; }
+.iti--separate-dial-code input { padding-left: 16px; }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>📱 Mobile Recharge</h2>
+    <div class="balance">Available Balance: ${{ account.balance }}</div>
+
+    <form method="POST" id="rechargeForm">
+        {% csrf_token %}
+
+        <label>Mobile Number</label>
+        <input type="tel" id="phone" placeholder="+92 300 1234567" required>
+        <div id="countryName" class="country-display"></div>
+
+        <input type="hidden" name="phone" id="full_phone">
+        <input type="hidden" name="country_code" id="country_code">
+
+        <label>Recharge Amount</label>
+        <input type="number" name="amount" min="1" placeholder="Enter amount" required>
+
+        <button type="submit">Recharge Now</button>
+    </form>
+
+    <div class="back">
+        <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- intl-tel-input JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
+
+<script>
+// Initialize intl-tel-input
+const input = document.querySelector("#phone");
+const iti = window.intlTelInput(input, {
+    allowDropdown: true,
+    separateDialCode: true,
+    nationalMode: false,
+    initialCountry: "auto",
+    utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+});
+
+// Show country name only (no flags)
+input.addEventListener("input", function() {
+    const data = iti.getSelectedCountryData();
+    if(data && data.name){
+        document.getElementById("countryName").textContent = data.name;
+    } else {
+        document.getElementById("countryName").textContent = '';
+    }
+});
+
+// Handle form submission
+document.getElementById("rechargeForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    if(!iti.isValidNumber()){
+        Swal.fire("Invalid Number","Enter valid mobile number","error");
+        return;
+    }
+
+    const fullNumber = iti.getNumber();
+    const amount = document.querySelector("input[name='amount']").value;
+
+    Swal.fire({
+        title:"Recharge Receipt",
+        html:`<b>Number:</b> ${fullNumber}<br>
+              <b>Amount:</b> $${amount}<br><br>
+              Confirm Recharge?`,
+        icon:"question",
+        showCancelButton:true,
+        confirmButtonText:"Confirm"
+    }).then((result) => {
+        if(result.isConfirmed){
+            document.getElementById("full_phone").value = fullNumber;
+            document.getElementById("country_code").value =
+                "+" + iti.getSelectedCountryData().dialCode;
+
+            sessionStorage.setItem("rechargeSuccess","true");
+            e.target.submit();
+        }
+    });
+});
+
+// Show success popup after reload
+window.addEventListener("load", function(){
+    if(sessionStorage.getItem("rechargeSuccess")){
+        Swal.fire({
+            icon:"success",
+            title:"Recharge Successful",
+            confirmButtonColor:"#0072ff"
+        });
+        sessionStorage.removeItem("rechargeSuccess");
+    }
+});
+</script>
+
+</body>
+</html>

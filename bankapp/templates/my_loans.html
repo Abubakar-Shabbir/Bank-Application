@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Loans - Bank System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #007BFF;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background: #f1f1f1;
+        }
+        .status-approved { color: green; font-weight: bold; }
+        .status-rejected { color: red; font-weight: bold; }
+        .status-pending { color: orange; font-weight: bold; }
+        .status-closed { color: gray; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>My Loans</h2>
+
+        {% if loans %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scheme</th>
+                        <th>Principal</th>
+                        <th>Approved Amount</th>
+                        <th>Interest Rate</th>
+                        <th>Balance Remaining</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loan in loans %}
+                        <tr>
+                            <td>{{ loan.scheme }}</td>
+                            <td>${{ loan.principal_amount }}</td>
+                            <td>${{ loan.approved_amount }}</td>
+                            <td>{{ loan.interest_rate|floatformat:2 }}</td>
+                            <td>${{ loan.balance_remaining }}</td>
+                            <td>{% if loan.due_date %}{{ loan.due_date|date:"d M Y" }}{% else %}-{% endif %}</td>
+                            <td class="status-{{ loan.status|lower }}">{{ loan.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="text-align:center;">No loans found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bank Dashboard</title>
+
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    body {
+        font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 20px;
+    }
+
+    /* Balance Card */
+    .balance-card {
+        background: linear-gradient(135deg, #4e73df, #224abe);
+        color: white;
+        border-radius: 16px;
+        padding: 40px 20px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .balance-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+    .balance-card h1 {
+        font-size: 3rem;
+        margin: 0;
+        letter-spacing: 1px;
+    }
+    .balance-card p {
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        opacity: 0.85;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        font-weight: 600;
+        padding: 12px 0;
+        border-radius: 8px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Cards for charts and tables */
+    .card-shadow {
+        box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+        border-radius: 12px;
+        padding: 25px;
+        background: white;
+        margin-bottom: 30px;
+        transition: box-shadow 0.3s;
+    }
+    .card-shadow:hover {
+        box-shadow: 0 10px 35px rgba(0,0,0,0.1);
+    }
+
+    .card-header-custom {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 15px;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+    }
+
+    /* Table */
+    .transactions-table th {
+        background-color: #f1f3f5;
+        font-weight: 600;
+    }
+    .positive { color: #28a745; font-weight: 600; }
+    .negative { color: #dc3545; font-weight: 600; }
+    .receipt-link { font-size: 0.85em; font-weight: 500; }
+
+    /* Chart container */
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 300px;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 768px) {
+        .balance-card h1 { font-size: 2.2rem; }
+        .action-btn { width: 100%; margin-bottom: 10px; }
+        .chart-container { height: 250px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+            <h4>Welcome, <strong>{{ account.user.username }}</strong></h4>
+            <small><a href="{% url 'profile' %}" class="text-decoration-none">View Profile & Account Info</a></small>
+        </div>
+        <form action="{% url 'logout' %}" method="post" class="mt-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-sm">Logout</button>
+        </form>
+    </div>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mt-2">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Balance Card -->
+    <div class="balance-card">
+        <p>Available Balance</p>
+        <h1>${{ account.balance }}</h1>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-2 col-md-3 col-6"><a href="{% url 'deposit' %}" class="btn btn-success w-100 action-btn">Deposit</a></div>
+        <div class="col-lg-2 col-md-3 col-6"><a href="{% url 'withdraw' %}" class="btn btn-warning w-100 action-btn">Withdraw</a></div>
+        <div class="col-lg-2 col-md-3 col-6"><a href="{% url 'transfer' %}" class="btn btn-info w-100 action-btn text-white">Transfer</a></div>
+        <div class="col-lg-2 col-md-3 col-6"><a href="{% url 'history' %}" class="btn btn-secondary w-100 action-btn">Statement</a></div>
+        <div class="col-lg-2 col-md-3 col-6">
+            <form action="{% url 'apply_interest' %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn w-100 action-btn" style="background-color:#6f42c1; color:white;">Add Interest</button>
+            </form>
+        </div>
+        <div class="col-lg-2 col-md-3 col-6"><a href="{% url 'apply_loan' %}" class="btn btn-warning w-100 action-btn">Apply Loan</a></div>
+        <div class="col-lg-2 col-md-3 col-6"><a href="{% url 'my_loans' %}" class="btn btn-success w-100 action-btn">My Loans</a></div>
+        <div class="col-lg-2 col-md-3 col-6"><a href="{% url 'mobile_recharge' %}" class="btn btn-info w-100 action-btn text-white">Mobile Recharge</a></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-lg-6 col-12 mb-3">
+            <div class="card-shadow">
+                <div class="card-header-custom">Monthly Balance Overview</div>
+                <div class="chart-container">
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 col-12 mb-3">
+            <div class="card-shadow">
+                <div class="card-header-custom">Transaction Types</div>
+                <div class="chart-container">
+                    <canvas id="transactionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Table -->
+    <div class="card-shadow">
+        <h5 class="mb-3">Recent Transactions</h5>
+        <div class="table-responsive">
+            <table class="table table-hover transactions-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.timestamp|date:"M d, H:i" }}</td>
+                        <td>{{ t.description }}</td>
+                        <td class="{% if t.amount < 0 %}negative{% else %}positive{% endif %}">
+                            {% if t.amount > 0 %}+{% endif %}${{ t.amount }}
+                        </td>
+                        <td>
+                            {% if t.id %}
+                                <a href="{% url 'receipt' t.id %}" class="text-primary receipt-link">View Receipt</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">No recent activity found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js Script -->
+<script>
+    // Dynamic data from Django context
+    const balanceLabels = {{ monthly_labels|safe }};
+    const balanceData = {{ monthly_balance|safe }};
+    const transactionLabels = {{ transaction_types|safe }};
+    const transactionData = {{ type_data|safe }};
+
+    // Balance Line Chart
+    const balanceCtx = document.getElementById('balanceChart').getContext('2d');
+    new Chart(balanceCtx, {
+        type: 'line',
+        data: {
+            labels: balanceLabels,
+            datasets: [{
+                label: 'Balance ($)',
+                data: balanceData,
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                borderColor: 'rgba(78, 115, 223, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    grid: { color: '#e9ecef' }
+                },
+                x: { grid: { color: '#f1f3f5' } }
+            },
+            interaction: { mode: 'index', intersect: false },
+            maintainAspectRatio: false
+        }
+    });
+
+    // Transaction Type Doughnut Chart
+    const transactionCtx = document.getElementById('transactionChart').getContext('2d');
+    new Chart(transactionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: transactionLabels,
+            datasets: [{
+                data: transactionData,
+                backgroundColor: ['#1cc88a','#f6c23e','#36b9cc','#858796'],
+                hoverOffset: 8,
+                borderWidth: 1,
+                borderColor: '#fff'
+            }]
+        },
+        options: { 
+            responsive: true, 
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { boxWidth: 15, padding: 15 } 
+                },
+                tooltip: { 
+                    callbacks: { 
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed;
+                        }
+                    }
+                }
+            },
+            maintainAspectRatio: false
+        }
+    });
+</script>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Withdraw Funds</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .action-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .action-card h2 { color: #dc3545; margin-bottom: 10px; text-align: center; }
+        .balance-info { text-align: center; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #e9ecef; }
+        .balance-info small { color: #666; display: block; }
+        .balance-info span { font-size: 1.4em; font-weight: bold; color: #333; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1.1em; }
+        .btn-submit { background: linear-gradient(135deg, #dc3545, #c82333); color: white; border: none; padding: 14px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1em; }
+        .error-msg { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px; margin-bottom: 15px; text-align: center; font-size: 0.9em; border: 1px solid #f5c6cb; }
+        .footer-link { text-align: center; margin-top: 20px; }
+        .footer-link a { color: #007bff; text-decoration: none; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+<div class="action-card">
+    <h2>Withdraw Funds</h2>
+    <div class="balance-info">
+        <small>Available to Withdraw</small>
+        <span>${{ account.balance }}</span>
+    </div>
+
+    {% if message %}
+        <div class="error-msg">{{ message }}</div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Amount to Withdraw ($)</label>
+            <input type="number" name="amount" step="0.01" min="0.01" required placeholder="0.00">
+        </div>
+        <button type="submit" class="btn-submit">Confirm Withdrawal</button>
+    </form>
+
+    <div class="footer-link">
+        <a href="{% url 'dashboard' %}">← Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>
