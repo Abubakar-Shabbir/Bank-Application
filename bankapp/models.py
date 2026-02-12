@@ -3,16 +3,25 @@ from django.contrib.auth.models import User
 from decimal import Decimal
 
 class Account(models.Model):
-    id = models.BigAutoField(primary_key=True)  # Fixes FK migration issue
+    id = models.BigAutoField(primary_key=True)
+
     ACCOUNT_TYPES = [('Savings', 'Savings'), ('Current', 'Current')]
-    
-    user = models.OneToOneField(User, on_delete=models.CASCADE) 
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     account_number = models.CharField(max_length=20, unique=True)
     balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
     account_type = models.CharField(max_length=10, choices=ACCOUNT_TYPES)
 
+    # 🔹 NEW FIELDS
+    cnic = models.CharField(max_length=15, unique=True)
+    date_of_birth = models.DateField()
+    age = models.PositiveIntegerField()
+    address = models.TextField()
+    phone_number = models.CharField(max_length=15)
+
     def __str__(self):
         return f"{self.user.username}'s {self.account_type} Account"
+
 
 class Transaction(models.Model):
     TRANSACTION_TYPES = [('Deposit', 'Deposit'), ('Withdrawal', 'Withdrawal'), ('Transfer', 'Transfer')]

@@ -4,21 +4,51 @@
     <meta charset="UTF-8">
     <title>My Profile</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .profile-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; }
-        .avatar { width: 80px; height: 80px; background: #007bff; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; margin: 0 auto 20px; font-weight: bold; }
-        h2 { margin: 0; color: #333; }
-        .email { color: #666; margin-bottom: 30px; }
-        .info-grid { display: grid; grid-template-columns: 1fr; gap: 15px; text-align: left; }
-        .info-item { background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #007bff, #0056b3); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .profile-card { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px); 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25); 
+            width: 100%; max-width: 500px; text-align: center; 
+            animation: fadeIn 0.7s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .avatar { 
+            width: 90px; height: 90px; background: #007bff; color: white; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-size: 2.2em; margin: 0 auto 20px; font-weight: bold; 
+        }
+        h2 { margin: 0; color: #0056b3; font-size: 28px; }
+        .email { color: #555; margin-bottom: 25px; font-size: 0.95em; }
+        .info-grid { 
+            display: grid; grid-template-columns: 1fr; gap: 15px; text-align: left; 
+        }
+        .info-item { 
+            background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; 
+        }
         .info-label { font-size: 0.8em; color: #888; text-transform: uppercase; letter-spacing: 1px; }
         .info-value { font-size: 1.1em; color: #222; font-weight: 600; display: block; margin-top: 5px; }
-        .acc-number { color: #007bff; font-family: 'Courier New', monospace; font-size: 1.3em; }
+        .acc-number { color: #007bff; font-family: 'Courier New', monospace; font-size: 1.2em; }
         .footer-link { margin-top: 30px; }
         .footer-link a { color: #007bff; text-decoration: none; font-weight: 600; }
         .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; font-weight: bold; margin-top: 5px; }
         .badge-savings { background: #d4edda; color: #155724; }
         .badge-current { background: #fff3cd; color: #856404; }
+
+        @media (max-width:480px){
+            .profile-card { padding: 30px 20px; }
+            h2 { font-size: 24px; }
+        }
     </style>
 </head>
 <body>
@@ -40,6 +70,30 @@
                     {{ account.account_type }}
                 </span>
             </span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Balance</span>
+            <span class="info-value">${{ account.balance }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">CNIC</span>
+            <span class="info-value">{{ account.cnic }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Date of Birth</span>
+            <span class="info-value">{{ account.date_of_birth|date:"F d, Y" }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Age</span>
+            <span class="info-value">{{ account.age }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Address</span>
+            <span class="info-value">{{ account.address }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Phone Number</span>
+            <span class="info-value">{{ account.phone_number }}</span>
         </div>
         <div class="info-item">
             <span class="info-label">Member Since</span>
