@@ -50,34 +50,57 @@ def transaction_history(request):
 
 
 
+from django.db import IntegrityError
+
 def signup_view(request):
     if request.method == "POST":
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
-        acc_type = request.POST.get('account_type') 
+        acc_type = request.POST.get('account_type')
+        cnic = request.POST.get('cnic')
+        dob = request.POST.get('date_of_birth')
+        age = request.POST.get('age')
+        address = request.POST.get('address')
+        phone = request.POST.get('phone')
+
+        # 🔹 Check CNIC uniqueness
+        if Account.objects.filter(cnic=cnic).exists():
+            return render(request, 'signup.html', {'error': "CNIC already exists! You cannot create another account."})
 
         try:
             with transaction.atomic():
-                # FIX: Capital 'U' for User model
-                user = User.objects.create_user(username=username, email=email, password=password)
-                
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password
+                )
+
                 acc_num = str(random.randint(10000000, 99999999))
                 while Account.objects.filter(account_number=acc_num).exists():
                     acc_num = str(random.randint(10000000, 99999999))
 
                 Account.objects.create(
-                    user=user, 
-                    account_number=acc_num, 
-                    account_type=acc_type, 
-                    balance=Decimal('0.00')
+                    user=user,
+                    account_number=acc_num,
+                    account_type=acc_type,
+                    balance=Decimal('0.00'),
+                    cnic=cnic,
+                    date_of_birth=dob,
+                    age=age,
+                    address=address,
+                    phone_number=phone
                 )
+
             return redirect('login')
+
+        except IntegrityError:
+            return render(request, 'signup.html', {'error': "Username or Email already exists."})
         except Exception as e:
-            print(f"Signup Error: {e}") # This helps you debug in the terminal
-            return render(request, 'signup.html', {'error': "Username already exists or invalid data."})
+            return render(request, 'signup.html', {'error': f"Something went wrong: {str(e)}"})
 
     return render(request, 'signup.html')
+
 
 @login_required
 def dashboard(request):
